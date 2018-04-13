@@ -1,0 +1,14 @@
+## YAML Template.
+---
+input_count: 10
+input_item: "minecraft:emerald"
+out_count1: 10
+out_count2: 10
+out_count3: 10
+out_count4: 10
+out_count5: 10
+out_count6: 10
+out_count7: 10
+out_count8: 10
+out_count9: 10
+out_item: "minecraft;emerald"

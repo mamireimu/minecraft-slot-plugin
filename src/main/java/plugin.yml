@@ -1,0 +1,25 @@
+## YAML Template.
+---
+name: Minecraft_Slot_Plugin
+version: 0.1
+description: slot plugin.
+author: Mamireimu
+website: mamireimuserver.com
+#---
+main: com.mamireimuserver.minecraft.slot.plugin.main
+#---
+commands:
+    slot_play:
+        description: test command.
+        usage: '/slot <1-9の数字>: スロットをする'
+        permission: slot.play
+permissions:
+    slot.*:
+        description: all Permission
+        children:
+            slot.play: true
+    slot.play:
+        description: スロットをプレイする
+        default: true
+    slot.set:
+           default: op
