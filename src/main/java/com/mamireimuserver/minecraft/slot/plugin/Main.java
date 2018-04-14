@@ -12,13 +12,17 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author mami
  */
-public class main extends JavaPlugin {
+public class Main extends JavaPlugin implements Listener{
+    
+    
+    public static Main plagin;
        
     /**
      * 起動時処理
      */
     @Override
     public void onEnable() {
+        plugin=this;
         getLogger().info("スロット有効化");
         saveDefaultConfig();
         
