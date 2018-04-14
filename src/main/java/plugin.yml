@@ -11,7 +11,6 @@ main: com.mamireimuserver.minecraft.slot.plugin.main
 commands:
     slot_play:
         description: test command.
-        usage: '/slot <1-9の数字>: スロットをする'
         permission: slot.play
 permissions:
     slot.*:

@@ -35,7 +35,7 @@ public class main extends JavaPlugin {
         int out_count8=getConfig().getInt("out_count.count8");
         int out_count9=getConfig().getInt("out_count.count9");
         
-        getCommand("slot").setExecutor(new BurnCMD());
+        getCommand("slot_play").setExecutor(new Slot_play());
     }
 
     /**
