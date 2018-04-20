@@ -15,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin implements Listener{
     
     
-    public static Main plagin;
+    public static Main plugin;
        
     /**
      * 起動時処理
@@ -27,17 +27,11 @@ public class Main extends JavaPlugin implements Listener{
         saveDefaultConfig();
         
         String import_item=getConfig().getString("item.input");
-        String out_item=getConfig().getString("item.out");
+        String out_item=getConfig().getString("item.out_item");
+        String out_block=getConfig().getString("item.out_block");
         int input_count=getConfig().getInt("input_count");
-        int out_count1=getConfig().getInt("out_count.count1");
-        int out_count2=getConfig().getInt("out_count.count2");
-        int out_count3=getConfig().getInt("out_count.count3");
-        int out_count4=getConfig().getInt("out_count.count4");
-        int out_count5=getConfig().getInt("out_count.count5");
-        int out_count6=getConfig().getInt("out_count.count6");
-        int out_count7=getConfig().getInt("out_count.count7");
-        int out_count8=getConfig().getInt("out_count.count8");
-        int out_count9=getConfig().getInt("out_count.count9");
+        int out_count=getConfig().getInt("out_count");
+        int out_exchange=getConfig().getInt("out_exchange");
         
         getCommand("slot_play").setExecutor(new Slot_play());
     }

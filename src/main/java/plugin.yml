@@ -6,7 +6,7 @@ description: slot plugin.
 author: Mamireimu
 website: mamireimuserver.com
 #---
-main: com.mamireimuserver.minecraft.slot.plugin.main
+main: com.mamireimuserver.minecraft.slot.plugin.Main
 #---
 commands:
     slot_play:
