@@ -3,22 +3,22 @@
 name: Minecraft_Slot_Plugin
 version: 0.1
 description: slot plugin.
-author: Mamireimu
+author: Mamireimu&Crousand
 website: mamireimuserver.com
 #---
 main: com.mamireimuserver.minecraft.slot.plugin.Main
 #---
 commands:
-    slot_play:
-        description: test command.
-        permission: slot.play
+   slot:
+      description: no description
+      permission: slot.default
+   slotsetting:
+      description: no description
+      permission: slot.op
 permissions:
-    slot.*:
-        description: all Permission
-        children:
-            slot.play: true
-    slot.play:
-        description: スロットをプレイする
-        default: true
-    slot.set:
-           default: op
+   slot.op:
+        description: /help no komando no setumei
+        default: op
+   slot.default:
+        description: /help no komando no setumei
+        default: default

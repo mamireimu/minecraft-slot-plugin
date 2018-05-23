@@ -5,14 +5,23 @@
  */
 package com.mamireimuserver.minecraft.slot.plugin;
 
-import org.bukkit.Bukkit;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Random;
+
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 
 /**
@@ -22,122 +31,196 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Slot_play implements CommandExecutor
 {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-	{
-            if(sender instanceof Player)
-            {
-                Player p = (Player)sender;
-                int loop[]= new int[9];
-                int slot_hit=0,slot_lucky=0;
-
-                //config読み込み
-                FileConfiguration config = Main.plugin.getConfig();
-                    String import_item=config.getString("item.input");
-                    String out_item=config.getString("item.out_item");
-                    String out_block=config.getString("item.out_block");
-                    int input_count=config.getInt("input_count");
-                    int out_count=config.getInt("out_count");
-                    int out_exchange=config.getInt("out_exchange");
-                    int out_magnification=config.getInt("out_magnification");
-
-                sender.sendMessage("スロット開始します!"); //コマンドを実行した人に「Hi!」とメッセージを送る。
-                for(int for_int=0;for_int<9;for_int++){
-
-                    //ランダム関数から出力時0の時だけ振り直し
-                    do {
-                    loop[for_int] = (int)(Math.random() * 10);
-                    } while(0>=loop[for_int]);
-                }
-                new BukkitRunnable()
-                {
-                        private int counter = 0;
-                        @Override
-                        public void run()
-                        {
-                                if(p.isOnline())
-                                {
-                                        p.sendMessage(loop[0+(counter*3)]+" "+loop[1+(counter*3)]+" "+loop[2+(counter*3)]+" ");
-                                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 1.0f, 0.65f);
-
-                                        if(counter<2)
-                                        {
-                                                counter++;
-                                        }
-                                        else
-                                        {
-                                                int atari = 0;
-                                                /*
-                                                 * 0 1 2
-                                                 * 3 4 5
-                                                 * 6 7 8
-                                                 */
-                                                //横
-                                                if(loop[0]==loop[1]&&loop[1]==loop[2])atari++;
-                                                if(loop[3]==loop[4]&&loop[4]==loop[5])atari++;
-                                                if(loop[6]==loop[7]&&loop[7]==loop[8])atari++;
-
-                                                //縦
-                                                if(loop[0]==loop[3]&&loop[3]==loop[6])atari++;
-                                                if(loop[1]==loop[4]&&loop[4]==loop[7])atari++;
-                                                if(loop[2]==loop[5]&&loop[5]==loop[8])atari++;
-
-                                                //斜め
-                                                if(loop[0]==loop[4]&&loop[4]==loop[8])atari++;
-                                                if(loop[2]==loop[4]&&loop[4]==loop[6])atari++;
-
-                                                if(atari>0)
-                                                {
-                                                        p.sendMessage("§a当たりが§e" + atari + "§a個でました。");
-                                                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-                                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName()
-                                                                        + " emerald " + atari);
-                                                        slot_hit=atari;
-                                                        Main.
-                                                }
-                                                else
-                                                {
-                                                        p.sendMessage("§c当たりがでませんでした。");
-                                                }
-                                                this.cancel();
-                                        }
-                                }
-                                else
-                                {
-                                        this.cancel();
-                                }
-                        }
-                }.runTaskTimer(Main.plugin, 10, 20);// 10ticks遅延したあと、20ticksごとに処理。
-
-            
-                //スロットでの当選判定
-                for(int f_i=0;f_i<=3;f_i++){
-                    if(loop[f_i]==loop[f_i+3]&&loop[f_i]==loop[f_i+6]){
-                        if(loop[f_i]==7){
-                        slot_lucky++;
-                        }else{
-                        slot_hit++;
-                        }   
-                    }
-                }
-
-                
-            
-                 //当選計算
-                int winning_coin_normal=out_count*(out_magnification^slot_hit);
-                int winning_coin_lucky=out_count*(out_magnification^slot_lucky);
-                int winning_coin_total=winning_coin_normal+winning_coin_lucky;
-
-                int give_item_count=winning_coin_total%out_exchange;
-                int give_block_count=winning_coin_total/out_exchange;
-
-                //当選金額支給
-                if(give_item_count!=0){
-                player.getInventory().addItem(new ItemStack(Material.EMERALD_BLOCK, give_block_count));
-                }
-                player.getInventory().addItem(new ItemStack(Material.EMERALD, give_item_count));
-
-               sender.sendMessage("スロット終了します。");
-            }
-               
-            return false;
+		{
+			if(sender instanceof Player)
+			{
+				Player player = (Player)sender;
+				String uuid = player.getUniqueId().toString();
+				if(!rolling.contains(uuid))
+				{
+					int kake = inputAmount;
+					int typeId = inputTypeID;
+					if(typeId>0 && kake>0)
+					{
+						if(removeItem(player.getInventory(), Material.getMaterial(typeId), 0, kake))
+						{
+							rolling.add(uuid);
+							Random rnd = new Random();
+							int[] i = new int[9];
+							for(int n=0;n<=8;n++)
+							{
+								i[n]=rnd.nextInt(8)+1;
+							}
+							int atari=0;
+							int atari7=0;
+							/*
+							 * 0 1 2
+							 * 3 4 5
+							 * 6 7 8
+							 */
+							//横
+							if(i[0]==i[1] && i[1]==i[2]){atari++; if(i[0]==7){atari7++;}}
+							if(i[3]==i[4] && i[4]==i[5]){atari++; if(i[3]==7){atari7++;}}
+							if(i[6]==i[7] && i[7]==i[8]){atari++; if(i[6]==7){atari7++;}}
+							//縦
+							if(i[0]==i[3] && i[3]==i[6]){atari++; if(i[0]==7){atari7++;}}
+							if(i[1]==i[4] && i[4]==i[7]){atari++; if(i[1]==7){atari7++;}}
+							if(i[2]==i[5] && i[5]==i[8]){atari++; if(i[2]==7){atari7++;}}
+							//斜め
+							if(i[0]==i[4] && i[4]==i[8]){atari++; if(i[0]==7){atari7++;}}
+							if(i[2]==i[4] && i[4]==i[6]){atari++; if(i[2]==7){atari7++;}}
+							int reward = 0;
+							if(atari7>0)
+							{
+								reward = ((10^atari)+(7^atari7))*kake;
+							}
+							else
+							{
+								reward = (10^atari)*kake;
+							}
+							final int atariClone = atari;
+							final int atari7Clone = atari7;
+							final int rewardClone = reward;
+							new BukkitRunnable()
+							{
+								private int counter = 2;
+								@Override
+								public void run()
+								{
+									if(player.isOnline())
+									{
+										switch(counter)
+										{
+											case 2:
+											{
+												player.sendMessage(prefix+"§e"+i[0]+" "+i[1]+" "+i[2]);
+												player.playSound(player.getLocation(),
+														Sound.BLOCK_NOTE_PLING, 1.0f, 1.0f);
+												break;
+											}
+											case 1:
+											{
+												player.sendMessage(prefix+"§e"+i[3]+" "+i[4]+" "+i[5]);
+												player.playSound(player.getLocation(),
+														Sound.BLOCK_NOTE_PLING, 1.0f, 1.0f);
+												break;
+											}
+											default:
+											{
+												player.sendMessage(prefix+"§e"+i[6]+" "+i[7]+" "+i[8]);
+												player.playSound(player.getLocation(),
+														Sound.BLOCK_NOTE_PLING, 1.0f, 2.0f);
+												if(atariClone>0)
+												{
+													player.sendMessage(prefix+"§6アタリが§e"+atariClone+"§6個、うち7のアタリが§e"
+															+atari7Clone+"§6個揃ったので§c"+rewardClone+"§6個の報酬アイテムが貰えました！");
+													player.playSound(player.getLocation(),
+															Sound.ENTITY_PLAYER_LEVELUP, 1.25f, 0.5f);
+													HashMap<Integer, ItemStack> map = player.getInventory()
+															.addItem(new ItemStack(Material.getMaterial(outputTypeID), rewardClone));
+													if(map.size()>0)
+													{
+														player.sendMessage(prefix+"§cインベントリに入りきらなかったアイテムが地面に散らばりました。");
+														for(int i : map.keySet())
+														{
+															Item item = player.getWorld().dropItem(
+																	player.getLocation(), map.get(i));
+															item.setVelocity(new Vector(0,0,0));
+															noItemPickDelay(item);
+														}
+													}
+												}
+												else
+												{
+													player.sendMessage(prefix+"§cアタリが1つも出ませんでした。");
+												}
+												rolling.remove(uuid);
+												this.cancel();
+												break;
+											}
+										}
+										counter--;
+									}
+									else
+									{
+										rolling.remove(uuid);
+										this.cancel();
+									}
+								}
+							}.runTaskTimer(this, 0, 20);
+						}
+						else
+						{
+							player.sendMessage(prefix+"§cスロットに必要なアイテムが足りません。\n"
+									+ prefix + "§c必要なアイテムと数: " + Material.getMaterial(inputTypeID)+ "(" + inputAmount+"個)");
+						}
+					}
+					else
+					{
+						player.sendMessage(prefix+"§cスロットに必要なアイテムと数が設定されていません。運営に報告お願いします。");
+					}
+				}
+				else
+				{
+					player.sendMessage(prefix+"§c現在スロットを回しています。");
+				}
+			}
+		}
+		else if(cmd.getName().equalsIgnoreCase("slotsetting"))
+		{
+			boolean success = false;
+			if(args.length>=3)
+			{
+				if(args[0].equalsIgnoreCase("input"))
+				{
+					if(args[1].equalsIgnoreCase("type"))
+					{
+						if(isInt(args[2]))
+						{
+							int i = Integer.parseInt(args[2]);
+							FileConfiguration config = getConfig();
+							config.set("item.input.typeID", i);
+							loadConfig();
+							sender.sendMessage(prefix+"§eスロットに必要なアイテムIDを§6"+i+"§eに設定しました。");
+							success = true;
+						}
+					}
+					else if(args[1].equalsIgnoreCase("amount"))
+					{
+						if(isInt(args[2]))
+						{
+							int i = Integer.parseInt(args[2]);
+							FileConfiguration config = getConfig();
+							config.set("item.input.amount", i);
+							loadConfig();
+							sender.sendMessage(prefix+"§eスロットに必要なアイテムの数を§6"+i+"§e個に設定しました。");
+							success = true;
+						}
+					}
+				}
+				else if(args[0].equalsIgnoreCase("output"))
+				{
+					if(args[1].equalsIgnoreCase("type"))
+					{
+						if(isInt(args[2]))
+						{
+							int i = Integer.parseInt(args[2]);
+							FileConfiguration config = getConfig();
+							config.set("item.output.typeID", i);
+							loadConfig();
+							sender.sendMessage(prefix+"§eスロットの景品アイテムのアイテムIDを§6"+i+"§eに設定しました。");
+							success = true;
+						}
+					}
+				}
+			}
+			if(!success)
+			{
+				sender.sendMessage(prefix+"§c/slotsetting input type <アイテムID>\n"
+						+ prefix+ "§c/slotsetting input amount <アイテム数>\n"
+						+ prefix+ "§c/slotsetting output type <アイテムID>");
+			}
+		}
+		return false;
 	}
 }
