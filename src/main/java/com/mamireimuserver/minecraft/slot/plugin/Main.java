@@ -44,4 +44,8 @@ public class Main extends JavaPlugin implements Listener{
         getLogger().info("スロット無効化");
         saveConfig();
     }
+    
+    public statuc void Hallo(int loop_go){
+        
+    }
 }

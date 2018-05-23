@@ -91,6 +91,7 @@ public class Slot_play implements CommandExecutor
                                                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "give " + p.getName()
                                                                         + " emerald " + atari);
                                                         slot_hit=atari;
+                                                        Main.
                                                 }
                                                 else
                                                 {
